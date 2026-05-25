@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fdfbf7; /* Off-white warm background */
-  --foreground: #1c1917; /* Slate dark stone text */
+  --background: #EBE5DF; /* Light Sand */
+  --foreground: #2C221E; /* Espresso / Dark Brown */
   --font-outfit: 'Outfit', sans-serif;
   --font-inter: 'Inter', sans-serif;
 }
@@ -12,29 +12,37 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-display: var(--font-outfit);
+
+  /* Map standard colors to custom palette */
+  --color-slate-800: #2C221E; /* Espresso (Headings) */
+  --color-slate-700: #352823; /* Espresso (Sub-headings) */
+  --color-slate-600: #4A3C38; /* Soft Brown (Paragraphs) */
+  --color-slate-500: #6E5C56; /* Muted Brown (Dates/Labels) */
+  --color-slate-400: #9C8E89;
+  
+  --color-indigo-600: #C26D46; /* Terracotta (Primary buttons/links/accents) */
+  --color-indigo-700: #A15735; 
+  --color-indigo-50: #F5EBE6;
+  
+  --color-pink-600: #D97352; /* Rust (Secondary accents) */
+  --color-pink-50: #F9EBE6;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter);
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(243, 232, 255, 0.4) 0px, transparent 50%), /* Soft lavender */
-    radial-gradient(at 50% 0%, rgba(224, 242, 254, 0.4) 0px, transparent 50%), /* Soft sky blue */
-    radial-gradient(at 100% 0%, rgba(254, 243, 199, 0.3) 0px, transparent 50%), /* Soft amber */
-    radial-gradient(at 50% 100%, rgba(240, 253, 244, 0.4) 0px, transparent 50%); /* Soft emerald */
+  background-image: none;
   background-attachment: fixed;
   background-size: cover;
   overflow-x: hidden;
 }
 
-/* Custom Glassmorphism Utilities */
+/* Custom Solid White Panels */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .glass-panel-hover {
@@ -42,17 +50,17 @@ body {
 }
 
 .glass-panel-hover:hover {
-  background: rgba(255, 255, 255, 0.65);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   transform: translateY(-4px);
 }
 
 .glass-navbar {
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* Scrollbar styling */
@@ -125,3 +133,147 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* ==========================================
+   Admin Dashboard Custom Scoped Typography
+   ========================================== */
+.admin-dashboard-root {
+  font-family: "Times New Roman", Times, Baskerville, Georgia, serif !important;
+}
+
+.admin-dashboard-root * {
+  font-family: "Times New Roman", Times, Baskerville, Georgia, serif !important;
+}
+
+/* Dashboard heading size: 32px */
+.admin-dashboard-root h1, 
+.admin-dashboard-root .dashboard-heading {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Section heading size: 24px */
+.admin-dashboard-root h2,
+.admin-dashboard-root .section-heading {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+/* Card title size: 20px */
+.admin-dashboard-root h3,
+.admin-dashboard-root h4,
+.admin-dashboard-root .card-title,
+.admin-dashboard-root .item-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+
+/* Normal text size: 18px */
+.admin-dashboard-root p,
+.admin-dashboard-root span,
+.admin-dashboard-root label,
+.admin-dashboard-root input,
+.admin-dashboard-root textarea,
+.admin-dashboard-root select,
+.admin-dashboard-root li,
+.admin-dashboard-root .normal-text {
+  font-size: 18px !important;
+  line-height: 1.6 !important;
+}
+
+/* Navbar text slightly larger & side actions */
+.admin-dashboard-root nav button,
+.admin-dashboard-root aside a,
+.admin-dashboard-root aside button,
+.admin-dashboard-root .nav-text {
+  font-size: 19px !important;
+  font-weight: 600 !important;
+}
+
+/* Buttons text medium-large */
+.admin-dashboard-root button,
+.admin-dashboard-root .btn-text {
+  font-size: 19px !important;
+  font-weight: 600 !important;
+}
+
+/* ==========================================
+   Portfolio Content Custom Scoped Typography
+   ========================================== */
+.portfolio-content-root {
+  font-family: "Times New Roman", Times, Baskerville, Georgia, serif !important;
+}
+
+.portfolio-content-root * {
+  font-family: "Times New Roman", Times, Baskerville, Georgia, serif !important;
+}
+
+/* Main section headings: 36px */
+.portfolio-content-root h2,
+.portfolio-content-root .section-title,
+.portfolio-content-root .main-heading {
+  font-size: 36px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Sub headings: 28px */
+.portfolio-content-root h3,
+.portfolio-content-root .sub-heading {
+  font-size: 28px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+}
+
+/* Card titles: 24px */
+.portfolio-content-root h4,
+.portfolio-content-root .card-title,
+.portfolio-content-root .item-title {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+
+/* Normal text: 18px */
+.portfolio-content-root p,
+.portfolio-content-root span,
+.portfolio-content-root li,
+.portfolio-content-root select,
+.portfolio-content-root input,
+.portfolio-content-root textarea,
+.portfolio-content-root .normal-text {
+  font-size: 18px !important;
+  line-height: 1.6 !important;
+}
+
+/* Description text: 17px */
+.portfolio-content-root .description,
+.portfolio-content-root .text-muted,
+.portfolio-content-root .text-slate-500,
+.portfolio-content-root .text-slate-600 {
+  font-size: 17px !important;
+}
+
+/* Button text: 18px */
+.portfolio-content-root button,
+.portfolio-content-root a.btn,
+.portfolio-content-root .btn-text,
+.portfolio-content-root button span,
+.portfolio-content-root a span {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+/* Form labels: 18px */
+.portfolio-content-root label,
+.portfolio-content-root .form-label {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+

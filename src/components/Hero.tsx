@@ -62,7 +62,7 @@ export default function Hero({ profile }: HeroProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="font-display text-4xl md:text-7xl font-extrabold tracking-tight mb-4"
+            className="font-display text-3xl md:text-5xl font-extrabold tracking-tight mb-4"
           >
             <span className="text-gradient-purple-blue">{profile.name}</span>
           </motion.h1>

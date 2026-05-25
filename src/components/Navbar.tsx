@@ -12,12 +12,9 @@ export default function Navbar({ name }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  // Scroll listener is no longer needed since navbar is always fixed
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Keep empty or remove
   }, []);
 
   const navLinks = [
@@ -40,17 +37,11 @@ export default function Navbar({ name }: NavbarProps) {
   };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'glass-navbar py-3 shadow-sm' : 'bg-transparent py-5'
-      }`}
-    >
+    <nav className="fixed top-0 left-0 w-full z-50 glass-navbar py-3 shadow-sm transition-all duration-300">
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
         {/* Logo/Name */}
         <Link href="/" className="font-display text-xl font-bold tracking-tight text-slate-800 flex items-center gap-1">
-          <span className="text-indigo-600 font-extrabold">&lt;</span>
-          {name.split(' ')[0]}
-          <span className="text-indigo-600 font-extrabold">/&gt;</span>
+          Angajala Rahultej
         </Link>
 
         {/* Desktop Navigation Links */}

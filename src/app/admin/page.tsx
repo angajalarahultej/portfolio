@@ -146,7 +146,7 @@ export default function AdminPage() {
   // 1. LOGIN SCREEN PANEL
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="admin-dashboard-root min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
         {/* Soft pastels floating glows */}
         <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-purple-200/30 rounded-full blur-3xl opacity-50" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl opacity-50" />
@@ -222,7 +222,7 @@ export default function AdminPage() {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
+    <div className="admin-dashboard-root min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
       {/* Mobile Header Dashboard Bar */}
       <div className="md:hidden glass-navbar py-4 px-6 flex items-center justify-between z-40 sticky top-0 left-0 right-0">
         <Link href="/" className="font-display font-bold text-slate-700 flex items-center gap-1 text-sm">

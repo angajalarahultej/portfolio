@@ -44,9 +44,7 @@ export default function About({ profile }: AboutProps) {
         <div className="md:col-span-7 space-y-6">
           <div className="space-y-2">
             <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">About Me</span>
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
-              Designing interfaces that <span className="text-gradient-pastel">feel alive</span>
-            </h2>
+
           </div>
 
           <p className="text-slate-600 leading-relaxed text-base font-light">

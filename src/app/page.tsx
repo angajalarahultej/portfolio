@@ -92,20 +92,22 @@ export default async function Home() {
       <Navbar name={finalProfile.name} />
 
       {/* Sections */}
-      <main className="space-y-6">
+      <main className="space-y-6 pt-20">
         <Hero profile={finalProfile} />
-        <About profile={finalProfile} />
-        <Skills skills={finalSkills} />
-        <ExperienceSection experiences={finalExperience} />
-        <EducationSection education={finalEducation} />
-        <Projects projects={finalProjects} />
-        <Certifications certifications={finalCertifications} />
-        <ResumeSection activeResume={finalActiveResume} />
-        <Contact
-          email={finalProfile.email}
-          phone={finalProfile.phone}
-          location={finalProfile.location}
-        />
+        <div className="portfolio-content-root space-y-6">
+          <About profile={finalProfile} />
+          <Skills skills={finalSkills} />
+          <ExperienceSection experiences={finalExperience} />
+          <EducationSection education={finalEducation} />
+          <Projects projects={finalProjects} />
+          <Certifications certifications={finalCertifications} />
+          <ResumeSection activeResume={finalActiveResume} />
+          <Contact
+            email={finalProfile.email}
+            phone={finalProfile.phone}
+            location={finalProfile.location}
+          />
+        </div>
       </main>
 
       {/* Footer */}
