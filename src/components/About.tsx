@@ -24,7 +24,7 @@ export default function About({ profile }: AboutProps) {
         <div className="md:col-span-5 flex justify-center">
           <div className="relative group">
             {/* Soft decorative background pastel glow */}
-            <div className="absolute -inset-4 bg-gradient-to-tr from-pink-200 to-indigo-200 rounded-3xl blur-2xl opacity-60 group-hover:opacity-80 transition duration-500" />
+
             
             <div className="relative glass-panel p-4 rounded-3xl shadow-lg max-w-[320px]">
               <img

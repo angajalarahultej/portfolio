@@ -150,6 +150,7 @@ export async function updateProfile(profile: any): Promise<any> {
         email: profile.email,
         phone: profile.phone,
         location: profile.location,
+        background_url: profile.background_url,
       })
       .eq("id", profileId)
       .select();
@@ -172,9 +173,9 @@ export async function updateProfile(profile: any): Promise<any> {
 // Education CRUD
 export async function upsertEducation(edu: Omit<Education, 'id'> & { id?: string }): Promise<boolean> {
   const payload = { ...edu };
-  if (payload.id && (payload.id.includes('edu-') || payload.id.includes('-') || isNaN(Number(payload.id)))) {
+  if (payload.id && String(payload.id).startsWith('edu-')) {
     delete payload.id;
-  } else if (payload.id) {
+  } else if (payload.id && !isNaN(Number(payload.id)) && String(payload.id).trim() !== '') {
     // @ts-ignore
     payload.id = Number(payload.id);
   }
@@ -199,9 +200,9 @@ export async function deleteEducation(id: string): Promise<boolean> {
 // Experience CRUD
 export async function upsertExperience(exp: Omit<Experience, 'id'> & { id?: string }): Promise<boolean> {
   const payload = { ...exp };
-  if (payload.id && (payload.id.includes('exp-') || payload.id.includes('-') || isNaN(Number(payload.id)))) {
+  if (payload.id && String(payload.id).startsWith('exp-')) {
     delete payload.id;
-  } else if (payload.id) {
+  } else if (payload.id && !isNaN(Number(payload.id)) && String(payload.id).trim() !== '') {
     // @ts-ignore
     payload.id = Number(payload.id);
   }
@@ -238,20 +239,32 @@ export async function deleteExperience(id: string): Promise<boolean> {
 }
 
 // Project CRUD
-export async function upsertProject(proj: Omit<Project, 'id'> & { id?: string }): Promise<boolean> {
-  const payload = { ...proj };
-  if (payload.id && (payload.id.includes('proj-') || payload.id.includes('-') || isNaN(Number(payload.id)))) {
+export async function upsertProject(proj: Omit<Project, 'id'> & { id?: string }): Promise<{success: boolean, errorMsg?: string}> {
+  const payload: any = { ...proj };
+  const hasValidId = payload.id && !String(payload.id).startsWith('proj-');
+  
+  // Remove generated columns to avoid Postgres IDENTITY column errors
+  delete payload.created_at;
+
+  let error;
+  if (hasValidId) {
+    // If it's a valid existing ID, do an UPDATE and don't include the 'id' column in the payload
+    const id = payload.id;
     delete payload.id;
-  } else if (payload.id) {
-    // @ts-ignore
-    payload.id = Number(payload.id);
+    const { error: updateErr } = await supabase.from('projects').update(payload).eq('id', id);
+    error = updateErr;
+  } else {
+    // If it's a new project (or has a dummy ID), do an INSERT without an ID
+    delete payload.id;
+    const { error: insertErr } = await supabase.from('projects').insert(payload);
+    error = insertErr;
   }
-  const { error } = await supabase.from('projects').upsert(payload);
+
   if (error) {
     console.error('Error saving project:', error);
-    return false;
+    return { success: false, errorMsg: error.message || JSON.stringify(error) };
   }
-  return true;
+  return { success: true };
 }
 
 export async function deleteProject(id: string): Promise<boolean> {
@@ -267,9 +280,9 @@ export async function deleteProject(id: string): Promise<boolean> {
 // Certification CRUD
 export async function upsertCertification(cert: Omit<Certification, 'id'> & { id?: string }): Promise<boolean> {
   const payload = { ...cert };
-  if (payload.id && (payload.id.includes('cert-') || payload.id.includes('-') || isNaN(Number(payload.id)))) {
+  if (payload.id && String(payload.id).startsWith('cert-')) {
     delete payload.id;
-  } else if (payload.id) {
+  } else if (payload.id && !isNaN(Number(payload.id)) && String(payload.id).trim() !== '') {
     // @ts-ignore
     payload.id = Number(payload.id);
   }
@@ -294,9 +307,9 @@ export async function deleteCertification(id: string): Promise<boolean> {
 // Skill CRUD
 export async function upsertSkill(skill: Omit<Skill, 'id'> & { id?: string }): Promise<boolean> {
   const payload = { ...skill };
-  if (payload.id && (payload.id.includes('sk-') || payload.id.includes('-') || isNaN(Number(payload.id)))) {
+  if (payload.id && String(payload.id).startsWith('sk-')) {
     delete payload.id;
-  } else if (payload.id) {
+  } else if (payload.id && !isNaN(Number(payload.id)) && String(payload.id).trim() !== '') {
     // @ts-ignore
     payload.id = Number(payload.id);
   }
@@ -405,14 +418,36 @@ export async function deleteResume(id: string, fileUrl: string): Promise<boolean
   return true;
 }
 
+// Background Photo Upload
+export async function uploadBackgroundImage(file: File): Promise<string | null> {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+  // Use existing 'avatars' bucket with a "backgrounds" folder prefix to avoid missing bucket issues
+  const filePath = `backgrounds/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars') // Reusing the avatars bucket which is known to exist
+    .upload(filePath, file);
+
+  if (uploadError) {
+    console.error('Error uploading background image:', uploadError);
+    return null;
+  }
+
+  // Get public URL
+  const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+  return data.publicUrl;
+}
+
 // Project Images Upload
 export async function uploadProjectImage(file: File): Promise<string | null> {
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-  const filePath = fileName;
+  // Use existing 'avatars' bucket with a "projects" folder prefix for consistency
+  const filePath = `projects/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
-    .from('projects')
+    .from('avatars') // Reusing the avatars bucket which is confirmed functional
     .upload(filePath, file);
 
   if (uploadError) {
@@ -420,7 +455,7 @@ export async function uploadProjectImage(file: File): Promise<string | null> {
     return null;
   }
 
-  const { data } = supabase.storage.from('projects').getPublicUrl(filePath);
+  const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
   return data.publicUrl;
 }
 
@@ -442,6 +477,7 @@ export async function uploadAvatarImage(file: File): Promise<string | null> {
   const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
   return data.publicUrl;
 }
+
 
 // ==========================================
 // CONTACT MESSAGES METHODS

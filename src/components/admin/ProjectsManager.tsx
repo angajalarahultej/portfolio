@@ -49,13 +49,17 @@ export default function ProjectsManager() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+    if (!editingProject) {
+      setMessage({ type: 'error', text: 'Start adding a project before uploading an image.' });
+      return;
+    }
     setUploading(true);
     setMessage(null);
 
     try {
       const publicUrl = await uploadProjectImage(files[0]);
       if (publicUrl) {
-        setEditingProject((prev) => ({ ...prev, image_url: publicUrl }));
+        setEditingProject((prev) => ({ ...(prev as any), image_url: publicUrl }));
         setMessage({ type: 'success', text: 'Project image uploaded!' });
       } else {
         setMessage({ type: 'error', text: 'Image upload failed.' });
@@ -83,14 +87,14 @@ export default function ProjectsManager() {
       tags: processedTags,
     } as Omit<Project, 'id'> & { id?: string };
 
-    const success = await upsertProject(payload);
+    const { success, errorMsg } = await upsertProject(payload);
     if (success) {
       setMessage({ type: 'success', text: 'Project saved successfully!' });
       setIsEditing(false);
       setEditingProject(null);
       fetchProjectsList();
     } else {
-      setMessage({ type: 'error', text: 'Failed to save project.' });
+      setMessage({ type: 'error', text: `Failed to save project: ${errorMsg}` });
     }
   };
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Profile } from '@/lib/types';
-import { updateProfile, uploadAvatarImage } from '@/lib/db';
+import { updateProfile, uploadAvatarImage, uploadBackgroundImage } from '@/lib/db';
 import { Save, Upload, User, Image as ImageIcon } from 'lucide-react';
 
 interface ProfileManagerProps {
@@ -20,27 +20,47 @@ export default function ProfileManager({ initialProfile }: ProfileManagerProps) 
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     setUploading(true);
     setMessage(null);
-
     try {
-      const publicUrl = await uploadAvatarImage(files[0]);
+      const publicUrl = await uploadBackgroundImage(files[0]);
       if (publicUrl) {
-        setProfile((prev) => ({ ...prev, avatar_url: publicUrl }));
-        setMessage({ type: 'success', text: 'Avatar uploaded successfully!' });
+        setProfile((prev) => ({ ...prev, background_url: publicUrl }));
+        setMessage({ type: 'success', text: 'Background image uploaded successfully!' });
       } else {
-        setMessage({ type: 'error', text: 'Failed to upload avatar image.' });
+        setMessage({ type: 'error', text: 'Failed to upload background image.' });
       }
     } catch (err) {
       console.error(err);
-      setMessage({ type: 'error', text: 'Error uploading file.' });
+      setMessage({ type: 'error', text: 'Error uploading background file.' });
     } finally {
       setUploading(false);
     }
   };
+
+const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = e.target.files;
+  if (!files || files.length === 0) return;
+  setUploading(true);
+  setMessage(null);
+  try {
+    const publicUrl = await uploadAvatarImage(files[0]);
+    if (publicUrl) {
+      setProfile((prev) => ({ ...prev, avatar_url: publicUrl }));
+      setMessage({ type: 'success', text: 'Avatar uploaded successfully!' });
+    } else {
+      setMessage({ type: 'error', text: 'Failed to upload avatar image.' });
+    }
+  } catch (err) {
+    console.error(err);
+    setMessage({ type: 'error', text: 'Error uploading file.' });
+  } finally {
+    setUploading(false);
+  }
+};
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -110,6 +130,18 @@ export default function ProfileManager({ initialProfile }: ProfileManagerProps) 
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
+            {/* Background Photo Upload */}
+            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:border-slate-350 hover:bg-slate-50 rounded-lg text-xs font-semibold text-slate-700 cursor-pointer shadow-sm transition-all duration-200">
+              <Upload size={14} />
+              {uploading ? 'Uploading...' : 'Choose Background'}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleBackgroundUpload}
                 disabled={uploading}
                 className="hidden"
               />

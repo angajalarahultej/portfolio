@@ -8,6 +8,7 @@ export interface Profile {
   linkedin_url?: string | null;
   email?: string | null;
   phone?: string | null;
+  background_url?: string | null;
   location?: string | null;
   created_at?: string;
 }

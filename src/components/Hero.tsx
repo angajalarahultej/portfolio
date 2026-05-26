@@ -12,7 +12,7 @@ interface HeroProps {
 
 export default function Hero({ profile }: HeroProps) {
   // Use a fallback premium abstract minimalist image if avatar_url isn't set or is generic
-  const heroImage = profile.avatar_url || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1600&h=900';
+
 
   const scrollToAbout = () => {
     const target = document.querySelector('#about');
@@ -23,17 +23,7 @@ export default function Hero({ profile }: HeroProps) {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Large Hero Image */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={heroImage}
-          alt="Visual Background"
-          className="w-full h-full object-cover filter brightness-[0.95] contrast-[0.95]"
-        />
-        {/* Soft pastel overlay to match the theme requirements */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/90 via-white/70 to-indigo-50/40 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-background" />
-      </div>
+
 
       {/* Floating Animated Pastel Blur Orbs in Hero Area */}
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-200/40 rounded-full blur-3xl mix-blend-multiply filter animate-pulse" />

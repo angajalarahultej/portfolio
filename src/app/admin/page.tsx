@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { isAdminUser } from '@/lib/auth-helper';
+
 import { getProfile } from '@/lib/db';
 import { Profile } from '@/lib/types';
 import { dummyProfile } from '@/lib/dummy-data';
@@ -40,9 +41,11 @@ export default function AdminPage() {
   const [sessionChecked, setSessionChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
+
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState('');
 
   // Tab State
   const [activeTab, setActiveTab] = useState<
@@ -57,7 +60,14 @@ export default function AdminPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // If there's an error (like an invalid refresh token), clear the bad session
+        if (error) {
+          console.warn('Session error, clearing storage:', error.message);
+          await supabase.auth.signOut();
+        }
+
         if (session && isAdminUser(session.user?.email)) {
           setIsAdmin(true);
           // Load actual profile
@@ -69,6 +79,8 @@ export default function AdminPage() {
         }
       } catch (err) {
         console.error('Error during admin session check:', err);
+        // Fallback clear
+        await supabase.auth.signOut().catch(() => {});
       } finally {
         setSessionChecked(true);
       }
@@ -92,41 +104,35 @@ export default function AdminPage() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-    const checkAdminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-    if (email.toLowerCase() !== checkAdminEmail?.toLowerCase()) {
-      setError('Unauthorized credentials. Access Denied.');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        setError(signInError.message);
-      } else if (data.user && !isAdminUser(data.user.email)) {
-        await supabase.auth.signOut();
-        setError('Unauthorized email. Access Denied.');
-      }
-    } catch (err) {
-      console.error(err);
-      setError('An error occurred during authentication.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setIsAdmin(false);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setLoginError('');
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      
+      if (!isAdminUser(data.user?.email)) {
+        await supabase.auth.signOut();
+        throw new Error('Unauthorized admin account');
+      }
+      
+      setIsAdmin(true);
+    } catch (err: any) {
+      setLoginError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Auth/Session checking view
@@ -143,68 +149,59 @@ export default function AdminPage() {
     );
   }
 
-  // 1. LOGIN SCREEN PANEL
-  if (!isAdmin) {
+  // If session checked but not admin, show login form
+  if (sessionChecked && !isAdmin) {
     return (
-      <div className="admin-dashboard-root min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-        {/* Soft pastels floating glows */}
-        <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-purple-200/30 rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl opacity-50" />
-
-        <div className="glass-panel p-8 rounded-3xl shadow-xl w-full max-w-md border border-white/60 relative z-15">
-          <div className="text-center space-y-3 mb-8">
-            <div className="mx-auto w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-inner border border-white">
-              <Lock size={22} />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 space-y-4 p-4">
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 max-w-md w-full">
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4">
+              <Lock size={24} />
             </div>
-            <h1 className="font-display font-extrabold text-slate-800 text-2xl">Admin Login Only</h1>
-            <p className="text-xs text-slate-500 font-light max-w-xs mx-auto">
-              Please enter your dashboard credentials to configure portfolio sections, uploads, and views.
-            </p>
+            <h2 className="text-2xl font-display font-bold text-slate-800">Admin Login</h2>
+            <p className="text-sm text-slate-500 mt-2">Sign in to manage your portfolio</p>
           </div>
-
+          
           <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-500">Email Address</label>
-              <input
-                type="email"
-                required
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email</label>
+              <input 
+                type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@example.com"
-                className="w-full px-4 py-3 bg-white/70 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm focus:outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                required
               />
             </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-500">Password</label>
-              <input
-                type="password"
-                required
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label>
+              <input 
+                type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 bg-white/70 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm focus:outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                required
               />
             </div>
-
-            {error && <p className="text-xs font-semibold text-pink-600">{error}</p>}
-
-            <button
-              type="submit"
+            
+            {loginError && (
+              <div className="p-3 bg-red-50 text-red-600 text-xs font-medium rounded-xl border border-red-100">
+                {loginError}
+              </div>
+            )}
+            
+            <button 
+              type="submit" 
               disabled={loading}
-              className="w-full py-3.5 bg-slate-900 text-white hover:bg-slate-800 font-semibold rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-1.5"
+              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-70"
             >
-              {loading ? 'Authenticating...' : 'Sign In'}
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
-
-            <Link
-              href="/"
-              className="mt-4 block text-center text-xs font-medium text-slate-500 hover:text-indigo-600 transition-colors"
-            >
-              ← Return to Portfolio Website
-            </Link>
           </form>
         </div>
+        <Link href="/" className="text-sm text-indigo-600 font-medium hover:underline flex items-center gap-2">
+          ← Return to Portfolio Website
+        </Link>
       </div>
     );
   }
